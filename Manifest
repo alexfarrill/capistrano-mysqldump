@@ -1,0 +1,5 @@
+MIT-LICENSE
+README
+Rakefile
+lib/capistrano/mysqldump/mysqldump.rb
+Manifest
