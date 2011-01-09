@@ -1,5 +1,5 @@
 MIT-LICENSE
+Manifest
 README
 Rakefile
-lib/capistrano/mysqldump/mysqldump.rb
-Manifest
+lib/capistrano/mysqldump.rb
