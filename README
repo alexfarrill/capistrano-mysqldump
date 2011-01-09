@@ -2,6 +2,8 @@
 
 Capistrano extension to run mysqldump remotely, download, and import into your local Rails development database.
 
+WARNING: This will blow away your development database (duh)
+
 To install: gem install capistrano-mysqldump
 
 To use: 
