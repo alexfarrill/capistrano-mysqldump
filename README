@@ -1,0 +1,3 @@
+= Capistrano Mysqldump
+
+Capistrano extension to run mysqldump remotely, download, and import into your local Rails development database.
