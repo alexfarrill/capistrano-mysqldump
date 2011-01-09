@@ -1,5 +1,5 @@
 require 'echoe'  
-Echoe.new('capistrano-mysqldump', '1.0') do |p|
+Echoe.new('capistrano-mysqldump', '1.01') do |p|
   p.author           = "Alexander Farrill"
   p.email            = "alex.farrill@gmail.com"
   p.summary          = "Capistrano extension to run mysqldump remotely, download, and import into your local Rails development database"
