@@ -13,7 +13,7 @@ Capistrano::Configuration.instance.load do
       set :mysqldump_local_filename, File.join( mysqldump_local_tmp_dir, mysqldump_filename_gz )
 
       host = mysqldump_config["host"]
-      set :mysqldump_location, host && host.any? && host != "localhost" ? :local : :remote
+      set :mysqldump_location, host && host.any? && host != "localhost" ? :local : :remote unless exists?(:mysqldump_location)
 
       dump
       import
