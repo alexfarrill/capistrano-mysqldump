@@ -9,6 +9,8 @@ Capistrano::Configuration.instance.load do
       set :mysqldump_filename_gz, "%s-%s.sql.gz" % [application, Time.now.to_i]
       set :mysqldump_remote_filename, File.join( mysqldump_remote_tmp_dir, mysqldump_filename_gz )
       set :mysqldump_local_filename, File.join( mysqldump_local_tmp_dir, mysqldump_filename_gz )
+      
+      set :mysqldump_location, :remote
 
       dump
       import
@@ -16,16 +18,26 @@ Capistrano::Configuration.instance.load do
 
     task :dump, :roles => :db do
       config = YAML.load_file("config/database.yml")[rails_env.to_s]
-      username, password, database = config.values_at *%w( username password database )
+      username, password, database, host = config.values_at *%w( username password database host )
 
-      mysqldump_cmd = "%s -u %s -p %s | gzip > %s" % [mysqldump_bin, username, database, mysqldump_remote_filename]
+      case mysqldump_location
+      when :remote
+        mysqldump_cmd = "%s -u %s -p %s | gzip > %s" % [mysqldump_bin, username, database, mysqldump_remote_filename]
 
-      run mysqldump_cmd do |ch, stream, out|
-        ch.send_data "#{password}\n" if out =~ /^Enter password:/
+        run mysqldump_cmd do |ch, stream, out|
+          ch.send_data "#{password}\n" if out =~ /^Enter password:/
+        end
+
+        download mysqldump_remote_filename, mysqldump_local_filename, :via => :scp
+        `gunzip #{mysqldump_local_filename}`
+      when :local
+        mysqldump_cmd = "%s -u %s" % [ mysqldump_bin, username ]
+        mysqldump_cmd += " -p#{password}" if password && password.any?
+        mysqldump_cmd += " -h #{host}" if host && host.any?
+        mysqldump_cmd += " %s | gzip > %s" % [ database, mysqldump_local_filename]
+        
+        `#{mysqldump_cmd}`
       end
-
-      download mysqldump_remote_filename, mysqldump_local_filename, :via => :scp
-      `gunzip #{mysqldump_local_filename}`
     end
 
     task :import do
