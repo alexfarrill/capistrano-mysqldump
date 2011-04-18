@@ -31,8 +31,8 @@ set :mysqldump_remote_tmp_dir, "/tmp"
 * Where on the local machine to download the sql dump file from the remote machine
 set :mysqldump_local_tmp_dir, "/tmp"
 
-* Where to run the mysqldump command.  If set to :local, mysqldump will use the -h parameter and run the dump locally.
-set :mysqldump_location, :remote
+* Where to run the mysqldump command.  If set to :local, mysqldump will use the -h parameter and run the dump locally.  The default is set to :local if a host is specified, otherwise it is set to :remote
+set :mysqldump_location, :local
 
 
 

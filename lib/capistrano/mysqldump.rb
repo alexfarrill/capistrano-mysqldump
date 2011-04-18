@@ -1,6 +1,8 @@
 Capistrano::Configuration.instance.load do
   namespace :mysqldump do
     task :default, :roles => :db do
+      set :mysqldump_config, YAML.load_file("config/database.yml")[rails_env.to_s]    
+
       # overwrite these if necessary
       set :mysqldump_bin, "/usr/local/mysql/bin/mysqldump" unless exists?(:mysqldump_bin)
       set :mysqldump_remote_tmp_dir, "/tmp" unless exists?(:mysqldump_remote_tmp_dir)
@@ -9,23 +11,23 @@ Capistrano::Configuration.instance.load do
       set :mysqldump_filename_gz, "%s-%s.sql.gz" % [application, Time.now.to_i]
       set :mysqldump_remote_filename, File.join( mysqldump_remote_tmp_dir, mysqldump_filename_gz )
       set :mysqldump_local_filename, File.join( mysqldump_local_tmp_dir, mysqldump_filename_gz )
-      
-      set :mysqldump_location, :remote
+
+      host = mysqldump_config["host"]
+      set :mysqldump_location, host && host.any? && host != "localhost" ? :local : :remote
 
       dump
       import
     end
 
     task :dump, :roles => :db do
-      config = YAML.load_file("config/database.yml")[rails_env.to_s]
-      username, password, database, host = config.values_at *%w( username password database host )
+      username, password, database, host = mysqldump_config.values_at *%w( username password database host )
 
       case mysqldump_location
       when :remote
         mysqldump_cmd = "%s -u %s -p %s" % [ mysqldump_bin, username, database ]
         mysqldump_cmd += " -h #{host}" if host && host.any?
         mysqldump_cmd += " | gzip > %s" % mysqldump_remote_filename
-        
+
         run mysqldump_cmd do |ch, stream, out|
           ch.send_data "#{password}\n" if out =~ /^Enter password:/
         end
@@ -37,7 +39,7 @@ Capistrano::Configuration.instance.load do
         mysqldump_cmd += " -p#{password}" if password && password.any?
         mysqldump_cmd += " -h #{host}" if host && host.any?
         mysqldump_cmd += " %s | gzip > %s" % [ database, mysqldump_local_filename]
-        
+
         `#{mysqldump_cmd}`
       end
     end
