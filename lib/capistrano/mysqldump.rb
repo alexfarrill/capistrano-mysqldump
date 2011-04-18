@@ -33,9 +33,10 @@ Capistrano::Configuration.instance.load do
       username, password, database = config.values_at *%w( username password database )
     
       mysqldump_filename = mysqldump_local_filename.gsub(/\.gz$/, '')
-    
-      `mysql -u#{username} -p#{password} -e "drop database #{database}; create database #{database}"`
-      `mysql -u#{username} -p#{password} #{database} < #{mysqldump_filename}`
+      mysql_cmd = "mysql -u#{username}"
+      mysql_cmd += " -p#{password}" if password.present?
+      `#{mysql_cmd} -e "drop database #{database}; create database #{database}"`
+      `#{mysql_cmd} #{database} < #{mysqldump_filename}`
       `rm #{mysqldump_filename}`
     end
   end
