@@ -2,18 +2,18 @@ Capistrano::Configuration.instance.load do
   namespace :mysqldump do
     task :default, :roles => :db do
       set :mysqldump_config, YAML.load_file("config/database.yml")[rails_env.to_s]    
-
+      host = mysqldump_config["host"]
+      
       # overwrite these if necessary
       set :mysqldump_bin, "/usr/local/mysql/bin/mysqldump" unless exists?(:mysqldump_bin)
       set :mysqldump_remote_tmp_dir, "/tmp" unless exists?(:mysqldump_remote_tmp_dir)
       set :mysqldump_local_tmp_dir, "/tmp" unless exists?(:mysqldump_local_tmp_dir)
+      set :mysqldump_location, host && host.any? && host != "localhost" ? :local : :remote unless exists?(:mysqldump_location)
 
+      # for convenience
       set :mysqldump_filename_gz, "%s-%s.sql.gz" % [application, Time.now.to_i]
       set :mysqldump_remote_filename, File.join( mysqldump_remote_tmp_dir, mysqldump_filename_gz )
       set :mysqldump_local_filename, File.join( mysqldump_local_tmp_dir, mysqldump_filename_gz )
-
-      host = mysqldump_config["host"]
-      set :mysqldump_location, host && host.any? && host != "localhost" ? :local : :remote unless exists?(:mysqldump_location)
 
       dump
       import
