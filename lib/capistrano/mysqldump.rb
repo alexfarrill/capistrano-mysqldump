@@ -22,8 +22,10 @@ Capistrano::Configuration.instance.load do
 
       case mysqldump_location
       when :remote
-        mysqldump_cmd = "%s -u %s -p %s | gzip > %s" % [mysqldump_bin, username, database, mysqldump_remote_filename]
-
+        mysqldump_cmd = "%s -u %s -p %s" % [ mysqldump_bin, username, database ]
+        mysqldump_cmd += " -h #{host}" if host && host.any?
+        mysqldump_cmd += " | gzip > %s" % mysqldump_remote_filename
+        
         run mysqldump_cmd do |ch, stream, out|
           ch.send_data "#{password}\n" if out =~ /^Enter password:/
         end
