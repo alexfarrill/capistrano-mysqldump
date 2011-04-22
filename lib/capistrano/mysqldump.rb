@@ -3,7 +3,7 @@ Capistrano::Configuration.instance.load do
     task :default, :roles => :db do
       set :mysqldump_config, YAML.load_file("config/database.yml")[rails_env.to_s]    
       host = mysqldump_config["host"]
-      
+
       # overwrite these if necessary
       set :mysqldump_bin, "/usr/local/mysql/bin/mysqldump" unless exists?(:mysqldump_bin)
       set :mysqldump_remote_tmp_dir, "/tmp" unless exists?(:mysqldump_remote_tmp_dir)
@@ -11,9 +11,11 @@ Capistrano::Configuration.instance.load do
       set :mysqldump_location, host && host.any? && host != "localhost" ? :local : :remote unless exists?(:mysqldump_location)
 
       # for convenience
-      set :mysqldump_filename_gz, "%s-%s.sql.gz" % [application, Time.now.to_i]
+      set :mysqldump_filename, "%s-%s.sql" % [application, Time.now.to_i]
+      set :mysqldump_filename_gz, "%s.gz" % mysqldump_filename
       set :mysqldump_remote_filename, File.join( mysqldump_remote_tmp_dir, mysqldump_filename_gz )
-      set :mysqldump_local_filename, File.join( mysqldump_local_tmp_dir, mysqldump_filename_gz )
+      set :mysqldump_local_filename, File.join( mysqldump_local_tmp_dir, mysqldump_filename )
+      set :mysqldump_local_filename_gz, File.join( mysqldump_local_tmp_dir, mysqldump_filename_gz )
 
       dump
       import
@@ -32,13 +34,13 @@ Capistrano::Configuration.instance.load do
           ch.send_data "#{password}\n" if out =~ /^Enter password:/
         end
 
-        download mysqldump_remote_filename, mysqldump_local_filename, :via => :scp
-        `gunzip #{mysqldump_local_filename}`
+        download mysqldump_remote_filename, mysqldump_local_filename_gz, :via => :scp
+        `gunzip #{mysqldump_local_filename_gz}`
       when :local
         mysqldump_cmd = "%s -u %s" % [ mysqldump_bin, username ]
         mysqldump_cmd += " -p#{password}" if password && password.any?
         mysqldump_cmd += " -h #{host}" if host && host.any?
-        mysqldump_cmd += " %s | gzip > %s" % [ database, mysqldump_local_filename]
+        mysqldump_cmd += " %s > %s" % [ database, mysqldump_local_filename]
 
         `#{mysqldump_cmd}`
       end
@@ -48,12 +50,11 @@ Capistrano::Configuration.instance.load do
       config = YAML.load_file("config/database.yml")["development"]
       username, password, database = config.values_at *%w( username password database )
 
-      mysqldump_filename = mysqldump_local_filename.gsub(/\.gz$/, '')
       mysql_cmd = "mysql -u#{username}"
       mysql_cmd += " -p#{password}" if password && password.any?
       `#{mysql_cmd} -e "drop database #{database}; create database #{database}"`
-      `#{mysql_cmd} #{database} < #{mysqldump_filename}`
-      `rm #{mysqldump_filename}`
+      `#{mysql_cmd} #{database} < #{mysqldump_local_filename}`
+      `rm #{mysqldump_local_filename}`
     end
   end
 end
