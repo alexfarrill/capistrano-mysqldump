@@ -35,6 +35,8 @@ Capistrano::Configuration.instance.load do
         end
 
         download mysqldump_remote_filename, mysqldump_local_filename_gz, :via => :scp
+        run "rm #{mysqldump_remote_filename}"
+        
         `gunzip #{mysqldump_local_filename_gz}`
       when :local
         mysqldump_cmd = "%s -u %s" % [ mysqldump_bin, username ]
