@@ -1,6 +1,11 @@
 Capistrano::Configuration.instance.load do
   namespace :mysqldump do
     task :default, :roles => :db do
+      dump
+      import
+    end
+    
+    task :setup do
       set :mysqldump_config, YAML.load_file("config/database.yml")[rails_env.to_s]    
       host = mysqldump_config["host"]
 
@@ -16,12 +21,10 @@ Capistrano::Configuration.instance.load do
       set :mysqldump_remote_filename, File.join( mysqldump_remote_tmp_dir, mysqldump_filename_gz )
       set :mysqldump_local_filename, File.join( mysqldump_local_tmp_dir, mysqldump_filename )
       set :mysqldump_local_filename_gz, File.join( mysqldump_local_tmp_dir, mysqldump_filename_gz )
-
-      dump
-      import
     end
 
     task :dump, :roles => :db do
+      setup 
       username, password, database, host = mysqldump_config.values_at *%w( username password database host )
 
       case mysqldump_location
