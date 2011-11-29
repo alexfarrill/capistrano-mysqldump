@@ -34,5 +34,5 @@ set :mysqldump_local_tmp_dir, "/tmp"
 * Where to run the mysqldump command.  If set to :local, mysqldump will use the -h parameter and run the dump locally.  The default is set to :local if a host is specified, otherwise it is set to :remote
 set :mysqldump_location, :local
 
-
-
+## Warning: RDS
+If using Amazon RDS and mysqldump_location is set to :local, mysqldump seems to render the RDS instance completely inaccessible during the dump.  This is annoying, if you are using RDS and EC2, I suggest either using :remote and having the mysqldump command run on an EC2 instance, where this does not happen (by nature of network proximity, I assume), or pointing the database at a slave. 
