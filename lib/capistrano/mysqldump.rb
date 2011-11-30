@@ -27,10 +27,12 @@ Capistrano::Configuration.instance.load do
       setup 
       username, password, database, host = mysqldump_config.values_at *%w( username password database host )
 
+      mysqldump_cmd = "%s --quick --single-transaction" % mysqldump_bin
+      mysqldump_cmd += " -h #{host}" if host && host.any?
+      
       case mysqldump_location
       when :remote
-        mysqldump_cmd = "%s -u %s -p %s" % [ mysqldump_bin, username, database ]
-        mysqldump_cmd += " -h #{host}" if host && host.any?
+        mysqldump_cmd += " -u %s -p %s" % [ username, database ]
         mysqldump_cmd += " | gzip > %s" % mysqldump_remote_filename
 
         run mysqldump_cmd do |ch, stream, out|
@@ -42,9 +44,8 @@ Capistrano::Configuration.instance.load do
         
         `gunzip #{mysqldump_local_filename_gz}`
       when :local
-        mysqldump_cmd = "%s -u %s" % [ mysqldump_bin, username ]
+        mysqldump_cmd += " -u %s" % username
         mysqldump_cmd += " -p#{password}" if password && password.any?
-        mysqldump_cmd += " -h #{host}" if host && host.any?
         mysqldump_cmd += " %s > %s" % [ database, mysqldump_local_filename]
 
         `#{mysqldump_cmd}`

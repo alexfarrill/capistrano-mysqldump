@@ -2,7 +2,7 @@
 
 Gem::Specification.new do |s|
   s.name = %q{capistrano-mysqldump}
-  s.version = "1.07"
+  s.version = "1.08"
 
   s.required_rubygems_version = Gem::Requirement.new(">= 1.2") if s.respond_to? :required_rubygems_version=
   s.authors = [%q{Alexander Farrill}]
