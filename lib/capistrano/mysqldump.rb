@@ -13,7 +13,7 @@ Capistrano::Configuration.instance.load do
       set :mysqldump_bin, "/usr/local/mysql/bin/mysqldump" unless exists?(:mysqldump_bin)
       set :mysqldump_remote_tmp_dir, "/tmp" unless exists?(:mysqldump_remote_tmp_dir)
       set :mysqldump_local_tmp_dir, "/tmp" unless exists?(:mysqldump_local_tmp_dir)
-      set :mysqldump_location, host && host.any? && host != "localhost" ? :local : :remote unless exists?(:mysqldump_location)
+      set :mysqldump_location, host && !host.empty? && host != "localhost" ? :local : :remote unless exists?(:mysqldump_location)
 
       # for convenience
       set :mysqldump_filename, "%s-%s.sql" % [application, Time.now.to_i]
@@ -28,7 +28,7 @@ Capistrano::Configuration.instance.load do
       username, password, database, host = mysqldump_config.values_at *%w( username password database host )
 
       mysqldump_cmd = "%s --quick --single-transaction" % mysqldump_bin
-      mysqldump_cmd += " -h #{host}" if host && host.any?
+      mysqldump_cmd += " -h #{host}" if host && !host.empty?
       
       case mysqldump_location
       when :remote
