@@ -45,7 +45,7 @@ Capistrano::Configuration.instance.load do
         `gunzip #{mysqldump_local_filename_gz}`
       when :local
         mysqldump_cmd += " -u %s" % username
-        mysqldump_cmd += " -p#{password}" if password && password.any?
+        mysqldump_cmd += " -p#{password}" if password && !password.blank?
         mysqldump_cmd += " %s > %s" % [ database, mysqldump_local_filename]
 
         `#{mysqldump_cmd}`
@@ -57,7 +57,7 @@ Capistrano::Configuration.instance.load do
       username, password, database = config.values_at *%w( username password database )
 
       mysql_cmd = "mysql -u#{username}"
-      mysql_cmd += " -p#{password}" if password && password.any?
+      mysql_cmd += " -p#{password}" if password && !password.blank?
       `#{mysql_cmd} -e "drop database #{database}; create database #{database}"`
       `#{mysql_cmd} #{database} < #{mysqldump_local_filename}`
       `rm #{mysqldump_local_filename}`
