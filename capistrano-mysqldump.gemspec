@@ -9,7 +9,7 @@ Gem::Specification.new do |s|
 
   s.required_rubygems_version = Gem::Requirement.new(">= 0") if s.respond_to? :required_rubygems_version=
   s.authors = ["Alex Farrill"]
-  s.date = "2011-11-30"
+  s.date = "2013-06-01"
   s.description = ""
   s.email = "alex.farrill@gmail.com"
   s.extra_rdoc_files = [
@@ -23,6 +23,7 @@ Gem::Specification.new do |s|
     "README",
     "Rakefile",
     "VERSION",
+    "capistrano-mysqldump.gemspec",
     "lib/capistrano/mysqldump.rb",
     "test/helper.rb",
     "test/test_capistrano-mysqldump.rb"
@@ -30,7 +31,7 @@ Gem::Specification.new do |s|
   s.homepage = "http://github.com/alexfarrill/capistrano-mysqldump"
   s.licenses = ["MIT"]
   s.require_paths = ["lib"]
-  s.rubygems_version = "1.8.11"
+  s.rubygems_version = "1.8.25"
   s.summary = "Capistrano extension to run mysqldump remotely, download, and import into your local Rails development database"
 
   if s.respond_to? :specification_version then
