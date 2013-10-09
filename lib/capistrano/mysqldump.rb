@@ -33,7 +33,13 @@ if Capistrano::Configuration.instance
 
         case mysqldump_location
         when :remote
-          mysqldump_cmd += " -u %s -p %s" % [ username, database ]
+          mysqldump_cmd += " -u %s -p" % username
+          if exists?(:mysqldump_ignore_tables) && mysqldump_ignore_tables.is_a?(Array)
+            mysqldump_ignore_tables.each do |table|
+              mysqldump_cmd += " --ignore-table=%s.%s" % [database, table]
+            end
+          end
+          mysqldump_cmd += " %s" % database
           mysqldump_cmd += " | gzip > %s" % mysqldump_remote_filename
 
           run mysqldump_cmd do |ch, stream, out|

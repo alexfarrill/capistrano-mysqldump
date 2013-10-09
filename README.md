@@ -60,6 +60,12 @@ set :mysqldump_local_tmp_dir, "/tmp"
 set :mysqldump_location, :local
 ```
 
+* The tables to ignore during the dump
+
+```ruby
+set :mysqldump_ignore_tables, %w(logs page_views)
+```
+
 ## Contributing to capistrano-mysqldump
 
 * Contributions welcome
