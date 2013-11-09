@@ -33,33 +33,34 @@ module Capistrano
           end
 
           task :setup do
-            set :mysqldump_config, YAML.load_file("config/database.yml")[rails_env.to_s]
-            host = mysqldump_config["host"]
+            @mysqldump_config = fetch :mysqldump_config, YAML.load_file("config/database.yml")[rails_env.to_s]
+
+            host = @mysqldump_config["host"]
 
             # overwrite these if necessary
-            set :mysqldump_bin, "/usr/local/mysql/bin/mysqldump" unless exists?(:mysqldump_bin)
-            set :mysqldump_remote_tmp_dir, "/tmp" unless exists?(:mysqldump_remote_tmp_dir)
-            set :mysqldump_local_tmp_dir, "/tmp" unless exists?(:mysqldump_local_tmp_dir)
-            set :mysqldump_location, host && !host.empty? && host != "localhost" ? :local : :remote unless exists?(:mysqldump_location)
+            @mysqldump_bin = fetch :mysqldump_bin, "/usr/local/mysql/bin/mysqldump"
+            mysqldump_remote_tmp_dir = fetch :mysqldump_remote_tmp_dir, "/tmp"
+            mysqldump_local_tmp_dir = fetch :mysqldump_local_tmp_dir, "/tmp"
+            @mysqldump_location = fetch :mysqldump_location, host && !host.empty? && host != "localhost" ? :local : :remote
 
             # for convenience
-            set :mysqldump_filename, "%s-%s.sql" % [application, Time.now.to_i]
-            set :mysqldump_filename_gz, "%s.gz" % mysqldump_filename
-            set :mysqldump_remote_filename, File.join( mysqldump_remote_tmp_dir, mysqldump_filename_gz )
-            set :mysqldump_local_filename, File.join( mysqldump_local_tmp_dir, mysqldump_filename )
-            set :mysqldump_local_filename_gz, File.join( mysqldump_local_tmp_dir, mysqldump_filename_gz )
+            mysqldump_filename = "%s-%s.sql" % [application, Time.now.to_i]
+            mysqldump_filename_gz = "%s.gz" % mysqldump_filename
+            @mysqldump_remote_filename = File.join( mysqldump_remote_tmp_dir, mysqldump_filename_gz )
+            @mysqldump_local_filename = File.join( mysqldump_local_tmp_dir, mysqldump_filename )
+            @mysqldump_local_filename_gz = File.join( mysqldump_local_tmp_dir, mysqldump_filename_gz )
           end
 
           def default_options
             setup
-            username, password, host = mysqldump_config.values_at *%w( username password host )
+            username, password, host = @mysqldump_config.values_at *%w( username password host )
             {
               :h => host,
               :quick => true,
               "single-transaction" => true,
             }.tap do |options|
 
-              password = true if mysqldump_location == :remote
+              password = true if @mysqldump_location == :remote
 
               if mysqldump_ignore_tables
                 options['ignore-tables'] = [mysqldump_ignore_tables].flatten.join ' '
@@ -72,24 +73,24 @@ module Capistrano
 
 
           task :dump, :roles => :db do
-            password, database = mysqldump_config.values_at *%w( password database )
+            password, database = @mysqldump_config.values_at *%w( password database )
 
-            mysqldump_cmd = "#{mysqldump_bin} #{options_string(default_options)} #{database}"
+            mysqldump_cmd = "#{@mysqldump_bin} #{options_string(default_options)} #{database}"
 
-            case mysqldump_location
+            case @mysqldump_location
             when :remote
-              mysqldump_cmd += " | gzip > %s" % mysqldump_remote_filename
+              mysqldump_cmd += " | gzip > %s" % @mysqldump_remote_filename
 
               run mysqldump_cmd do |ch, stream, out|
                 ch.send_data "#{password}\n" if out =~ /^Enter password:/
               end
 
-              download mysqldump_remote_filename, mysqldump_local_filename_gz, :via => :scp
-              run "rm #{mysqldump_remote_filename}"
+              download @mysqldump_remote_filename, @mysqldump_local_filename_gz, :via => :scp
+              run "rm #{@mysqldump_remote_filename}"
 
-              `gunzip #{mysqldump_local_filename_gz}`
+              `gunzip #{@mysqldump_local_filename_gz}`
             when :local
-              mysqldump_cmd += " > %s" % mysqldump_local_filename
+              mysqldump_cmd += " > %s" % @mysqldump_local_filename
 
               `#{mysqldump_cmd}`
             end
@@ -103,8 +104,8 @@ module Capistrano
             
             mysql_cmd = "mysql #{credentials_string}"
             `#{mysql_cmd} -e "drop database #{database}; create database #{database}"`
-            `#{mysql_cmd} #{database} < #{mysqldump_local_filename}`
-            `rm #{mysqldump_local_filename}`
+            `#{mysql_cmd} #{database} < #{@mysqldump_local_filename}`
+            `rm #{@mysqldump_local_filename}`
           end
         end
       end
