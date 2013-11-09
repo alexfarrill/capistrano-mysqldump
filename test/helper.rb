@@ -10,9 +10,7 @@ end
 require 'test/unit'
 require 'shoulda'
 
-$LOAD_PATH.unshift(File.join(File.dirname(__FILE__), '..', 'lib'))
-$LOAD_PATH.unshift(File.dirname(__FILE__))
-require 'capistrano-mysqldump'
+require File.expand_path('../../lib/capistrano/mysqldump', __FILE__)
 
 class Test::Unit::TestCase
 end
