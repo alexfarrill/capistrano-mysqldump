@@ -66,6 +66,23 @@ set :mysqldump_location, :local
 set :mysqldump_ignore_tables, %w(logs page_views)
 ```
 
+* Or the tables to extract
+
+```ruby
+set :mysqldump_tables, %w{cool_info totally_awesome_rows}
+```
+(default is all tables)
+
+* Arbitrary options to pass to mysql dump
+
+```ruby
+set :mysqldump_options, {'no-data' => true, 'port' => 3307 }}
+```
+
+Equivalent to running
+
+    $ mysqldump --no-data --port=3308
+
 ## Contributing to capistrano-mysqldump
 
 * Contributions welcome
