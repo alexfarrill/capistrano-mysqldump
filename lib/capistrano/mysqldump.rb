@@ -2,6 +2,13 @@ require 'capistrano'
 
 module Capistrano
   module Mysqldump 
+
+    # converts a hash of options into a string.
+    # drops falsey-valued keys.
+    # 
+    # `{u: 'foo', 'single-transaction' => true, ignore-tables' => 'bar',  p: nil}`
+    # => '-ufoo --ignore-tables=bar --single-transaction
+    # 
     def self.options_string(options = nil)
       options
       options.map do |k,v|
@@ -17,6 +24,8 @@ module Capistrano
       end.compact.join ' '
     end
 
+    # returns credential options for a given username and password
+    # when given an empty or nil password, does not include p: in the returned hash
     def self.credential_options(username, password)
       {}.tap do |opts|
         opts[:u] = username
