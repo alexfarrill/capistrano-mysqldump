@@ -2,6 +2,28 @@ require 'capistrano'
 
 module Capistrano
   module Mysqldump 
+    def self.options_string(options = nil)
+      options
+      options.map do |k,v|
+        next unless v
+        used_value = v == true ? nil : v
+        used_prefix, used_join = if k.length == 1
+          ["-", '']
+        else
+          ["--", '=']
+        end
+
+        "#{used_prefix}#{[k, used_value].compact.join used_join}"
+      end.compact.join ' '
+    end
+
+    def self.credential_options(username, password)
+      {}.tap do |opts|
+        opts[:u] = username
+        opts[:p] = password if password == true || password && !password.empty?
+      end
+    end
+
     def self.load_into(configuration)
       configuration.load do 
         namespace :mysqldump do
@@ -28,22 +50,34 @@ module Capistrano
             set :mysqldump_local_filename_gz, File.join( mysqldump_local_tmp_dir, mysqldump_filename_gz )
           end
 
-          task :dump, :roles => :db do
+          def default_options
             setup
-            username, password, database, host = mysqldump_config.values_at *%w( username password database host )
+            username, password, host = mysqldump_config.values_at *%w( username password host )
+            {
+              :h => host,
+              :quick => true,
+              "single-transaction" => true,
+            }.tap do |options|
 
-            mysqldump_cmd = "%s --quick --single-transaction" % mysqldump_bin
-            mysqldump_cmd += " -h #{host}" if host && !host.empty?
+              password = true if mysqldump_location == :remote
+
+              if mysqldump_ignore_tables
+                options['ignore-tables'] = [mysqldump_ignore_tables].flatten.join ' '
+              end
+
+              options.merge! credential_options username, password
+            end
+          end
+
+
+
+          task :dump, :roles => :db do
+            password, database = mysqldump_config.values_at *%w( password database )
+
+            mysqldump_cmd = "#{mysqldump_bin} #{options_string(default_options)} #{database}"
 
             case mysqldump_location
             when :remote
-              mysqldump_cmd += " -u %s -p" % username
-              if exists?(:mysqldump_ignore_tables) && mysqldump_ignore_tables.is_a?(Array)
-                mysqldump_ignore_tables.each do |table|
-                  mysqldump_cmd += " --ignore-table=%s.%s" % [database, table]
-                end
-              end
-              mysqldump_cmd += " %s" % database
               mysqldump_cmd += " | gzip > %s" % mysqldump_remote_filename
 
               run mysqldump_cmd do |ch, stream, out|
@@ -55,9 +89,7 @@ module Capistrano
 
               `gunzip #{mysqldump_local_filename_gz}`
             when :local
-              mysqldump_cmd += " -u %s" % username
-              mysqldump_cmd += " -p#{password}" if password && !password.empty?
-              mysqldump_cmd += " %s > %s" % [ database, mysqldump_local_filename]
+              mysqldump_cmd += " > %s" % mysqldump_local_filename
 
               `#{mysqldump_cmd}`
             end
@@ -67,8 +99,9 @@ module Capistrano
             config = YAML.load_file("config/database.yml")["development"]
             username, password, database = config.values_at *%w( username password database )
 
-            mysql_cmd = "mysql -u#{username}"
-            mysql_cmd += " -p#{password}" if password && !password.empty?
+            credentials_string = options_string credential_options(username, password)
+            
+            mysql_cmd = "mysql #{credentials_string}"
             `#{mysql_cmd} -e "drop database #{database}; create database #{database}"`
             `#{mysql_cmd} #{database} < #{mysqldump_local_filename}`
             `rm #{mysqldump_local_filename}`
