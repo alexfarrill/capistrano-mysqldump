@@ -51,6 +51,7 @@ module Capistrano
             mysqldump_remote_tmp_dir = fetch :mysqldump_remote_tmp_dir, "/tmp"
             mysqldump_local_tmp_dir = fetch :mysqldump_local_tmp_dir, "/tmp"
             @mysqldump_location = fetch :mysqldump_location, host && !host.empty? && host != "localhost" ? :local : :remote
+            @mysqldump_options = fetch :mysqldump_options, {}
 
             # for convenience
             mysqldump_filename = "%s-%s.sql" % [application, Time.now.to_i]
@@ -84,7 +85,8 @@ module Capistrano
           task :dump, :roles => :db do
             password, database = @mysqldump_config.values_at *%w( password database )
 
-            mysqldump_cmd = "#{@mysqldump_bin} #{options_string(default_options)} #{database}"
+            options = default_options.merge @mysqldump_options
+            mysqldump_cmd = "#{@mysqldump_bin} #{options_string(options)} #{database}"
 
             case @mysqldump_location
             when :remote
