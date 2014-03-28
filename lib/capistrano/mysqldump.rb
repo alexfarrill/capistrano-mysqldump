@@ -86,7 +86,7 @@ module Capistrano
             password, database = @mysqldump_config.values_at *%w( password database )
 
             options = default_options.merge @mysqldump_options
-            mysqldump_cmd = "#{@mysqldump_bin} #{options_string(options)} #{mysqldump_tables} #{database}"
+            mysqldump_cmd = "#{@mysqldump_bin} #{options_string(options)} #{database} #{mysqldump_tables}"
 
             case @mysqldump_location
             when :remote
