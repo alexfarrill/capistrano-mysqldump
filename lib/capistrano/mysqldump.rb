@@ -125,5 +125,5 @@ module Capistrano
 end
 
 if Capistrano::Configuration.instance
-  Mysqldump::Capistrano.load_into(Capistrano::Configuration.instance)
+  Capistrano::Mysqldump.load_into(Capistrano::Configuration.instance)
 end
