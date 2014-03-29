@@ -43,6 +43,9 @@ module Capistrano
 
           task :setup do
             @mysqldump_config = fetch :mysqldump_config, YAML.load_file("config/database.yml")[rails_env.to_s]
+            unless @mysqldump_config
+              raise "Cannot load database config for #{rails_env} environment"
+            end
 
             host = @mysqldump_config["host"]
 
@@ -59,6 +62,9 @@ module Capistrano
             @mysqldump_remote_filename = File.join( mysqldump_remote_tmp_dir, mysqldump_filename_gz )
             @mysqldump_local_filename = File.join( mysqldump_local_tmp_dir, mysqldump_filename )
             @mysqldump_local_filename_gz = File.join( mysqldump_local_tmp_dir, mysqldump_filename_gz )
+
+            @mysqldump_ignore_tables = fetch :mysqldump_ignore_tables, []
+            @mysqldump_tables = fetch :mysqldump_tables, []
           end
 
           def default_options
@@ -72,21 +78,21 @@ module Capistrano
 
               password = true if @mysqldump_location == :remote
 
-              if mysqldump_ignore_tables
-                options['ignore-tables'] = [mysqldump_ignore_tables].flatten.join ' '
+              if @mysqldump_ignore_tables.any?
+                options['ignore-tables'] = [@mysqldump_ignore_tables].flatten.join ' '
               end
 
-              options.merge! credential_options username, password
+              options.merge! Mysqldump.credential_options(username, password)
             end
           end
 
 
 
           task :dump, :roles => :db do
+            options = default_options
+            options.merge! @mysqldump_options
             password, database = @mysqldump_config.values_at *%w( password database )
-
-            options = default_options.merge @mysqldump_options
-            mysqldump_cmd = "#{@mysqldump_bin} #{options_string(options)} #{database} #{mysqldump_tables}"
+            mysqldump_cmd = "#{@mysqldump_bin} #{Mysqldump.options_string(options)} #{database} #{[@mysqldump_tables].flatten.compact.join ' '}"
 
             case @mysqldump_location
             when :remote
@@ -111,7 +117,7 @@ module Capistrano
             config = YAML.load_file("config/database.yml")["development"]
             username, password, database = config.values_at *%w( username password database )
 
-            credentials_string = options_string credential_options(username, password)
+            credentials_string = Mysqldump.options_string Mysqldump.credential_options(username, password)
             
             mysql_cmd = "mysql #{credentials_string}"
             `#{mysql_cmd} -e "drop database #{database}; create database #{database}"`
