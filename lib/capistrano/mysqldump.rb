@@ -47,7 +47,7 @@ module Capistrano
             host = @mysqldump_config["host"]
 
             # overwrite these if necessary
-            @mysqldump_bin = fetch :mysqldump_bin, "/usr/local/mysql/bin/mysqldump"
+            @mysqldump_bin = fetch :mysqldump_bin, "`which mysqldump`"
             mysqldump_remote_tmp_dir = fetch :mysqldump_remote_tmp_dir, "/tmp"
             mysqldump_local_tmp_dir = fetch :mysqldump_local_tmp_dir, "/tmp"
             @mysqldump_location = fetch :mysqldump_location, host && !host.empty? && host != "localhost" ? :local : :remote

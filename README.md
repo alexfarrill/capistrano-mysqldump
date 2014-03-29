@@ -36,7 +36,7 @@ Or whatever environment you want to take the mysqldump from
 
 Override these defaults in `deploy.rb` if necessary
 
-* Location of the mysqldump binary
+* Location of the mysqldump binary (default is `which mysqldump`)
 
 ```ruby
 set :mysqldump_bin, "/usr/local/mysql/bin/mysqldump"
