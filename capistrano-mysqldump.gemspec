@@ -9,8 +9,14 @@ Gem::Specification.new do |s|
   s.email = "alex.farrill@gmail.com"
   s.extra_rdoc_files = [
     "LICENSE.txt",
-    "README"
+    "README.md"
   ]
+
+  s.files         = Dir["lib/**/*"]
+
+  # explicitly disable test files until they're used
+  # s.test_files    = Dir['test/**/*']
+
   s.files = `git ls-files`.split($/)
   s.homepage = "http://github.com/alexfarrill/capistrano-mysqldump"
   s.licenses = ["MIT"]
