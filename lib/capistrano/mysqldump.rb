@@ -53,7 +53,7 @@ module Capistrano
             @mysqldump_bin = fetch :mysqldump_bin, "`which mysqldump`"
             mysqldump_remote_tmp_dir = fetch :mysqldump_remote_tmp_dir, "/tmp"
             mysqldump_local_tmp_dir = fetch :mysqldump_local_tmp_dir, "/tmp"
-            @mysqldump_location = fetch :mysqldump_location, host && !host.empty? && host != "localhost" ? :local : :remote
+            @mysqldump_location = fetch :mysqldump_location, host && !host.empty? && host != "localhost" ? :remote : :local
             @mysqldump_options = fetch :mysqldump_options, {}
 
             # for convenience
