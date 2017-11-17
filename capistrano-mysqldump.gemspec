@@ -25,6 +25,8 @@ Gem::Specification.new do |s|
   s.summary = "Capistrano extension to run mysqldump remotely, download, and import into your local Rails development database"
 
   s.test_files    = s.files.grep(%r{^(test|spec|features)/})
+
+  s.required_ruby_version = ">= 2.0"
   s.add_runtime_dependency(%q<capistrano>, [">= 3.0.0"])
   s.add_development_dependency "bundler", "~> 1.3"
   s.add_development_dependency "rake"
