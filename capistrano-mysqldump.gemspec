@@ -21,7 +21,6 @@ Gem::Specification.new do |s|
   s.homepage = "http://github.com/alexfarrill/capistrano-mysqldump"
   s.licenses = ["MIT"]
   s.require_paths = ["lib"]
-  s.rubygems_version = "1.8.25"
   s.summary = "Capistrano extension to run mysqldump remotely, download, and import into your local Rails development database"
 
   s.test_files    = s.files.grep(%r{^(test|spec|features)/})
