@@ -1,0 +1,17 @@
+language: ruby
+
+dist: trusty
+sudo: false
+
+rvm:
+  - ruby-head
+  - 2.3
+  - 2.2
+  - 2.1
+  - 2.0
+
+allow_failures:
+  - rvm: ruby-head
+
+notifications:
+  email: false
