@@ -1,10 +1,10 @@
 # coding: utf-8
 Gem::Specification.new do |s|
   s.name = "capistrano-mysqldump"
-  s.version = "2.0.0"
+  s.version = "2.0.1"
 
-  s.authors = ["Alex Farrill"]
-  s.date = "2013-07-03"
+  s.authors = ["Alex Farrill", "Marica Odagaki", "Michael Glass"]
+  s.date = "2017-02-06"
   s.description = ""
   s.email = "alex.farrill@gmail.com"
   s.extra_rdoc_files = [

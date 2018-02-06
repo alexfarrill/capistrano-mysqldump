@@ -1,7 +1,7 @@
 PATH
   remote: .
   specs:
-    capistrano-mysqldump (2.0.0)
+    capistrano-mysqldump (2.0.1)
       capistrano (>= 3.0.0)
 
 GEM
