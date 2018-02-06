@@ -4,6 +4,8 @@ Capistrano extension to run mysqldump remotely, download, and import into your l
 
 WARNING: This will blow away your development database (duh)
 
+## Note: For capistrano v2, see version 1
+
 ## Installation
 
 ```ruby
@@ -19,12 +21,6 @@ require 'capistrano/mysqldump'
 ```
 
 * Run:
-
-```ruby
-cap mysqldump
-```
-
-Or if you're using `capistrano-ext/multistage`, do
 
 ```ruby
 cap production mysqldump
