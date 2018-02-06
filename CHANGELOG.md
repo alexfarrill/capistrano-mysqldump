@@ -1,3 +1,9 @@
+2.0.0 - 2018-02-06
+==================
+
+## features
+[Upgraded to support Capistrano 3](https://github.com/alexfarrill/capistrano-mysqldump/pull/12)
+
 1.1.2 - 2014-10-06
 ==================
 

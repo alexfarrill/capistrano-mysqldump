@@ -1,7 +1,7 @@
 PATH
   remote: .
   specs:
-    capistrano-mysqldump (1.1.2)
+    capistrano-mysqldump (2.0.0)
       capistrano (>= 3.0.0)
 
 GEM
@@ -14,7 +14,7 @@ GEM
       tzinfo (~> 1.1)
     airbrussh (1.3.0)
       sshkit (>= 1.6.1, != 1.7.0)
-    capistrano (3.10.0)
+    capistrano (3.10.1)
       airbrussh (>= 1.0.0)
       i18n
       rake (>= 10.0.0)
@@ -34,7 +34,7 @@ GEM
     shoulda-context (1.2.2)
     shoulda-matchers (2.8.0)
       activesupport (>= 3.0.0)
-    sshkit (1.15.0)
+    sshkit (1.16.0)
       net-scp (>= 1.1.2)
       net-ssh (>= 2.8.0)
     test-unit (3.2.6)
@@ -54,4 +54,4 @@ DEPENDENCIES
   test-unit
 
 BUNDLED WITH
-   1.14.6
+   1.16.1

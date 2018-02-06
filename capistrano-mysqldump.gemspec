@@ -1,7 +1,7 @@
 # coding: utf-8
 Gem::Specification.new do |s|
   s.name = "capistrano-mysqldump"
-  s.version = "1.1.2"
+  s.version = "2.0.0"
 
   s.authors = ["Alex Farrill"]
   s.date = "2013-07-03"
